@@ -83,6 +83,42 @@ public class Component {
     /**
      * 返回解析后的组件列表。解析方法：{@link #parseComponent(String)}。
      *
+     * @param s 消息
+     * @return 解析后组件列表
+     */
+    public static ArrayList<Component> parseComponents(String s){
+        ArrayList<Component> components = new ArrayList<>();
+        int count = 0;
+
+        Matcher matcher = CQC.matcher(s);
+        int end = 0;
+        while (matcher.find()) {
+            //string before cq code
+            if(matcher.start() > end){
+                String strBefore = s.substring(end, matcher.start());
+                components.add(new ComponentString(strBefore));
+            }
+            String content = matcher.group();
+            Component component = parseComponent(content);
+            components.add(component);
+            end = matcher.end();
+            count++;
+        }
+        //string after last cq code
+        if(end < s.length()){
+            String strAfter = s.substring(end);
+            components.add(new ComponentString(strAfter));
+            count++;
+        }
+        if(count == 0){
+            components.add(new ComponentString(s));
+        }
+        return components;
+    }
+
+    /**
+     * 返回解析后的组件列表。解析方法：{@link #parseComponent(String)}。
+     *
      * @param args 消息列表
      * @return 解析后组件列表
      */
@@ -90,33 +126,7 @@ public class Component {
         ArrayList<Component> components = new ArrayList<>();
 
         for (String arg : args) {
-            int count = 0;
-
-            Matcher matcher = CQC.matcher(arg);
-            int end = 0;
-            while (matcher.find()) {
-                //string before cq code
-                if(matcher.start() > end){
-                    String strBefore = arg.substring(end, matcher.start());
-                    components.add(new ComponentString(strBefore));
-                }
-                String content = matcher.group();
-                Component component = parseComponent(content);
-                components.add(component);
-                end = matcher.end();
-                count++;
-            }
-            //string after last cq code
-            if(end < arg.length()){
-                String strAfter = arg.substring(end);
-                components.add(new ComponentString(strAfter));
-                count++;
-            }
-            if(count == 0){
-                components.add(new ComponentString(arg));
-            }
-
-
+            components.addAll(parseComponents(arg));
         }
 
         return components;
