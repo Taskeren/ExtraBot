@@ -1,0 +1,9 @@
+# Gradle 缓存
+.gradle
+
+# 构建目录
+bin
+build
+
+# 日志文件
+logs
