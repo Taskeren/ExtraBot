@@ -1,7 +1,124 @@
 # ExtraBot
 一个给 PicqBotX 开发的库。
 
-## 消息解析： Message Parser
+## MixinBot：高度自定义化机器人
+
+MixinBot 基于 PicqBotX，并对其进行了修改和升级，使之更加客制化，用户友好化。
+
+MixinBot 主要对 PicqBotX 的部分管理器进行反射修改，见下表。
+
+| PicqBotX 组件 | MixinBot 组件 | 是否必须 |
+| :-: | :-: | :-: |
+| CommandManager | MixinCommandManager | 必须 |
+| EventManager | MixinEventManager | 必须 |
+| PicqHttpServer | MixinHttpServer | 可选 |
+
+### 实例化机器人和快捷方法
+
+实例化 BotTweaker 与 PicqBotX 类似。
+
+```java
+// MixinBotConfiguration 继承于 PicqConfig，可以对其内容进行操作，但是需要强制转型为 MixinBotConfiguration
+MixinBotConfiguration config = new MixinBotConfiguration(25560);
+BotTweaker tweaker = BotTweaker.DEFAULT;
+MixinBot bot = new MixinBot(config); // 不使用 BotTweaker
+MixinBot botTweakable = new MixinBot(config, tweaker); // 使用 BotTweaker
+```
+
+MixinBot 提供了指令和事件监听器的快捷注册方法
+
+```java
+MixinBot bot = new MixinBot(config);
+bot.addCommand(command); // 常规注册指令
+bot.addEventListener(listener); // 常规注册事件
+bot.doAutoRegister(clazz); // AutoRegister 注册，见下方 AutoRegister 描述
+```
+
+### 异常抛出与捕捉自定义
+
+MixinBot 目前暂时只提供了 addAcount 的异常捕捉。当没有设置异常处理器时，会继续向上抛出异常。
+
+```java
+MixinBotConfiguration config = new MixinBotConfiguration(25560).setAddAccountExceptionHandler(
+	(bot, exception) -> {
+		bot.getLogger().errorf("在 addAccount 时捕捉到了一个异常：%s", exception.getMessage());
+		bot.getLogger().error(exception);
+	}
+);
+```
+
+### BotTweaker：机器人本地事件监听器
+
+BotTweaker 用于对机器人非信息处理的一些操作进行修改，如指令注册事件。__BotTweaker 仅支持 MixinBot！__
+
+BotTweaker 提供了几种方法，当这些方法返回 `false` 的时，则表示停止，或者取消这些操作，默认都是 `true`。下面我以指令添加事件作为实例，进行演示。
+
+```java
+public static final BotTweaker tweaker = new BotTweaker() {
+
+	public boolean onAddCommand(MixinBot bot, IcqCommand command) {
+		// 表示当指令名称为 “MyName” 时，禁止它的注册。
+		if(command.properties().getName().contentEquals("MyName")) {
+			return false;
+		}
+	}
+
+}
+
+// 在机器人实例化时导入 BotTweaker
+MixinBot bot = new MixinBot(new MixinBotConfiguration(25560), tweaker);
+```
+
+### MixinHttpServer：更加客制化的 HttpServer
+
+MixinHttpServer 的内容为可选内容。
+
+MixinHttpServer 提供了关闭服务器的接口，用于特殊用途。
+
+```java
+MixinBot bot = new MixinBot(config);
+bot.stopBot();
+```
+
+MixinHttpServer 还提供了当被非酷QHTTPAPI访问时返回的信息自定义。
+
+```java
+MixinBotConfiguration config = new MixinBotConfiguration(25560).setHelloMessage("Hey, 404 here!");
+```
+
+同时 MixinHttpServer 暴露了 HttpServer（com.sun.net.httpserver.HttpServer），用于特殊开发。
+
+```java
+MixinBot bot = new MixinBot(config);
+PicqHttpServer server = bot.getHttpServer();
+if(server instanceof MixinHttpServer) {
+	MixinHttpServer ms = (MixinHttpServer) server;
+	HttpServer = ms.getServer();
+
+	// 操作示例
+	ms.createContext("/yoyoyoyo", handler);
+}
+
+```
+
+#### 如果你还有什么底层的内容需要访问，请创建一个 issue。
+
+### MixinBotInjector：给开发者用的反射工具包
+
+MixinBotInjector 内置了修改 PicqBotX 管理器的方法，支持的变量见下表。修改时机建议是机器人初始化完成后立即修改，不然容易造成数据丢失，如指令注册丢失。
+
+| 方法 | 内容 |
+| :-: | :-: |
+| setHttpServer | 设置HTTP监听服务器 |
+| setEventManager | 设置事件管理器 |
+| setAccountManager | 设置机器人账号管理器 |
+| setUserManager | 设置用户对象缓存管理器 |
+| setGroupManager | 设置群对象缓存管理器 |
+| setGroupUserManager | 设置群用户对象缓存管理器 |
+| setCommandManager | 设置指令管理器 |
+| setLoggerInstanceManager | 设置Logger实例管理器 |
+
+## 消息解析：Message Parser
 
 给指令提供更方便的操作。
 
