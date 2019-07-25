@@ -125,8 +125,10 @@ BotAccount acc2 = am.getAccountByName("Geo"); // 通过机器人名称获取
 另类获取方法，使用 BotAccountFinder。这种方法可以在某些需要的地方用上。_讲道理我也不知道能用在哪里..._
 
 ```java
-BotAccountFinder finder = new BotAccountFinder().by(10000L).by("Geo"); // 可以用 by 方法传入名称和QQ号
-BotAccount acc = finder.find(bot); // 传入一个机器人实例。
+// 用by()方法传入名称和QQ号
+BotAccountFinder finder = new BotAccountFinder().by(10000L).by("Geo");
+// 传入一个机器人来获取账号
+BotAccount acc = finder.find(bot);
 ```
 
 ### Timer in Mixin：计划任务
@@ -144,7 +146,8 @@ Timer timer = bot.getTimer(); // 获取 Timer 就这么简单
 Timer timer = bot.getTimer();
 
 // 传入的参数分别是：机器人，信息，号码（QQ号/群号/讨论组号），消息类型（人，群，讨论组），账号查找器
-MixinTaskMessage task = new MixinTaskMessage(bot, "Hello", 3070190799L, MessageType.PRIVATE, new BotAccountFinder().by("Geo"));
+MixinTaskMessage task = 
+	new MixinTaskMessage(bot, "Hello", 3070190799L, MessageType.PRIVATE, new BotAccountFinder().by("Geo"));
 
 // 这些信息都可以进行修改
 task.setMessage("Bye~");
@@ -159,6 +162,7 @@ int state = bot.getState();
 ```
 
 | 状态码（int） | 意义 |
+| :-: | :-: |
 | 0 | 初始化阶段，组件尚未加载完成 |
 | 1 | 挂起状态，不能监听HttpApi消息，但是可以发送消息 |
 | 2 | 运行状态，能够处理HttpApi消息 |
