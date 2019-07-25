@@ -1,5 +1,6 @@
 package cn.glycol.extrabot.bot;
 
+import java.util.Timer;
 import java.util.function.BiConsumer;
 
 import cc.moecraft.icq.PicqBotX;
@@ -7,25 +8,47 @@ import cc.moecraft.icq.PicqConfig;
 import cc.moecraft.icq.command.interfaces.IcqCommand;
 import cc.moecraft.icq.event.IcqListener;
 import cn.glycol.extrabot.ExtraBot;
+import cn.glycol.extrabot.bot.manager.MixinAccountManager;
 import cn.glycol.extrabot.bot.manager.MixinCommandManager;
 import cn.glycol.extrabot.bot.manager.MixinEventManager;
 import cn.glycol.extrabot.bot.server.MixinHttpServer;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /**
  * 高度自定义机器人
  * 
- * <p>强制性修改的管理器：{@linkplain MixinCommandManager 指令管理器}，{@linkplain MixinEventManager 事件管理器}
+ * <p>强制性修改的管理器：{@linkplain MixinCommandManager 指令管理器}，{@linkplain MixinEventManager 事件管理器}，{@linkplain MixinAccountManager 账号管理器}
  * <p>选择性修改的管理器：{@linkplain MixinHttpServer HttpServer}
  * 
  * @author Taskeren
  */
+@Getter
 public class MixinBot extends PicqBotX {
 
 	protected final MixinBotConfiguration config;
-	protected final BotTweaker tweaker;
+	protected final BotTweaker botTweaker;
+	
+	/**
+	 * 机器人状态码。
+	 * 
+	 * <table border>
+	 * <tr><td>0</td><td>初始化</td><td>组件尚未加载完毕</td>
+	 * <tr><td>1</td><td>待机中</td><td>初始化完成但尚未启动或启动后被关闭</td>
+	 * <tr><td>2</td><td>运行中</td><td>正在运行</td>
+	 * </table>
+	 */
+	protected int state = 0;
+	
+	public static final int STATE_INITIAL = 0;
+	public static final int STATE_SUPSEND = 1;
+	public static final int STATE_RUNNING = 2;
+	
+	/** Timer调度器 */
+	private Timer timer;
 
 	/**
 	 * 使用 MixinBot 的配置档创建一个 MixinBot。
@@ -45,10 +68,21 @@ public class MixinBot extends PicqBotX {
 	public MixinBot(MixinBotConfiguration config, BotTweaker tweaker) {
 		super(config);
 		this.config = config;
-		this.tweaker = tweaker;
+		this.botTweaker = tweaker;
+		this.timer = new Timer();
 		init();
 	}
+	
+	/**
+	 * 强制将PicqBotX 转型为 MixinBot
+	 * @param bot PicqBotX
+	 * @return MixinBot
+	 */
+	public static MixinBot of(PicqBotX bot) {
+		return (MixinBot) bot;
+	}
 
+	@Getter(AccessLevel.NONE)
 	private boolean init;
 	
 	public void init() {
@@ -59,18 +93,44 @@ public class MixinBot extends PicqBotX {
 			init = true;
 		}
 		
+		// 开始初始化
+		state = STATE_INITIAL;
+		
 		// 强制性修改，你莫得选择
 		MixinBotInjector.setEventManager(this, new MixinEventManager(this)); // 修改事件管理器
+		MixinBotInjector.setAccountManager(this, new MixinAccountManager(this)); // 修改账号管理器
 		
 		// 选择性修改
 		if(config.isUseMixinHttpServer()) {
 			MixinBotInjector.setHttpServer(this, new MixinHttpServer(this, config.getSocketPort())); // 修改Http服务器
 		}
+		
+		// 初始化完成
+		state = STATE_SUPSEND;
+	}
+	
+	/**
+	 * 获取账号管理器
+	 */
+	public MixinAccountManager getAccountManager() {
+		return (MixinAccountManager) super.getAccountManager(); // 在初始化里已经强制修改为了 MixinAccountManager
+	}
+	
+	/** 
+	 * <table border>
+	 * <tr><td>0</td><td>待机</td>
+	 * <tr><td>1</td><td>运行</td>
+	 * </table>
+	 * 
+	 * @return 机器人状态码
+	 */
+	public int getState() {
+		return state;
 	}
 	
 	@Override
 	public void addAccount(String name, String postUrl, int postPort) {
-		if (tweaker.onAddAccount(this, name, postUrl, postPort)) {
+		if (botTweaker.onAddAccount(this, name, postUrl, postPort)) {
 			try {
 				super.addAccount(name, postUrl, postPort);
 			} catch(Exception ex) {
@@ -88,7 +148,7 @@ public class MixinBot extends PicqBotX {
 
 	@Override
 	public void enableCommandManager(String... prefixes) {
-		if (tweaker.onEnableCommandManager(this, prefixes)) {
+		if (botTweaker.onEnableCommandManager(this, prefixes)) {
 			super.enableCommandManager(prefixes);
 			MixinBotInjector.setCommandManager(this, new MixinCommandManager(this, prefixes)); // 修改指令管理器
 		} else {
@@ -125,8 +185,17 @@ public class MixinBot extends PicqBotX {
 
 	@Override
 	public void startBot() {
-		if (tweaker.onBotStart(this)) {
-			super.startBot();
+		if (botTweaker.onBotStart(this)) {
+			try {
+				super.startBot();
+				state = STATE_RUNNING; // 状态：监听
+			} catch(Exception ex) {
+				if(config.getStartBotExceptionHandler() != null) {
+					config.getStartBotExceptionHandler().accept(this, ex);
+				} else {
+					throw ex;
+				}
+			}
 		} else {
 			//
 		}
@@ -137,9 +206,10 @@ public class MixinBot extends PicqBotX {
 	 * @return 是否成功
 	 */
 	public boolean stopBot() {
-		if(tweaker.onBotStop(this)) {
+		if(botTweaker.onBotStop(this)) {
 			if(getHttpServer() instanceof MixinHttpServer) {
 				((MixinHttpServer) getHttpServer()).stop();
+				state = STATE_SUPSEND; // 状态：待机
 				return true;
 			} else {
 				return false;
@@ -147,14 +217,6 @@ public class MixinBot extends PicqBotX {
 		} else {
 			return false;
 		}
-	}
-
-	public MixinBotConfiguration getConfig() {
-		return config;
-	}
-	
-	public BotTweaker getBotTweaker() {
-		return tweaker;
 	}
 
 	/**
@@ -173,6 +235,9 @@ public class MixinBot extends PicqBotX {
 		
 		/** 异常处理，用于处理 {@link MixinBot#addAccount(String, String, int)} 抛出的异常，通常是用户添加失败（酷Q没开） */
 		private BiConsumer<MixinBot, Exception> addAccountExceptionHandler;
+		
+		/** 异常处理，用于处理 {@link MixinBot#startBot()} 抛出的异常，通常是HTTPAPI版本验证问题 */
+		private BiConsumer<MixinBot, Exception> startBotExceptionHandler;
 		
 		/** 是否使用 {@link MixinHttpServer} */
 		private boolean useMixinHttpServer = true;

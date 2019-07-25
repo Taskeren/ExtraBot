@@ -1,6 +1,7 @@
 package cn.glycol.extrabot.test;
 
 import java.util.Arrays;
+import java.util.TimerTask;
 
 import org.junit.Test;
 
@@ -9,6 +10,9 @@ import cc.moecraft.logger.environments.ColorSupportLevel;
 import cn.glycol.extrabot.bot.BotTweaker;
 import cn.glycol.extrabot.bot.MixinBot;
 import cn.glycol.extrabot.bot.MixinBot.MixinBotConfiguration;
+import cn.glycol.extrabot.bot.manager.MixinAccountManager.BotAccountFinder;
+import cn.glycol.extrabot.timer.MixinTaskMessage;
+import cn.glycol.extrabot.timer.MixinTaskMessage.MessageType;
 
 public class TestMixin {
 
@@ -21,9 +25,22 @@ public class TestMixin {
 		bot.enableCommandManager("/");
 		
 		bot.doAutoRegister(Reference.class);
+
+		TimerTask task0 = new TimerTask() {
+			@Override
+			public void run() {
+				System.out.println("task0");
+			}
+		};
+		
+		MixinTaskMessage task1 = new MixinTaskMessage(bot, "Hello", 3070190799L, MessageType.PRIVATE, new BotAccountFinder().by("Geo"));
+		
+		bot.getTimer().schedule(task0, 0, 1000*10);
+		bot.getTimer().schedule(task1, 0, 1000*10);
 		
 		bot.startBot();
 		
+		while(true) {}
 	}
 	
 	public static final BotTweaker tweaker = new BotTweaker() {

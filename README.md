@@ -12,6 +12,7 @@ MixinBot 主要对 PicqBotX 的部分管理器进行反射修改，见下表。
 | CommandManager | MixinCommandManager | 必须 |
 | EventManager | MixinEventManager | 必须 |
 | PicqHttpServer | MixinHttpServer | 可选 |
+| AccountManager | MixinAccountManager | 必须 |
 
 ### 实例化机器人和快捷方法
 
@@ -36,13 +37,19 @@ bot.doAutoRegister(clazz); // AutoRegister 注册，见下方 AutoRegister 描�
 
 ### 异常抛出与捕捉自定义
 
-MixinBot 目前暂时只提供了 addAcount 的异常捕捉。当没有设置异常处理器时，会继续向上抛出异常。
+MixinBot 目前暂时只提供了 addAcount 和 startBot 的异常捕捉。当没有设置异常处理器时，会继续向上抛出异常。
 
 ```java
-MixinBotConfiguration config = new MixinBotConfiguration(25560).setAddAccountExceptionHandler(
+MixinBotConfiguration config = new MixinBotConfiguration(25560)
+.setAddAccountExceptionHandler(
 	(bot, exception) -> {
 		bot.getLogger().errorf("在 addAccount 时捕捉到了一个异常：%s", exception.getMessage());
 		bot.getLogger().error(exception);
+	}
+)
+.setStartBotExceptionHandler(
+	(bot, exception) -> {
+		// do something
 	}
 );
 ```
@@ -100,6 +107,61 @@ if(server instanceof MixinHttpServer) {
 }
 
 ```
+
+### MixinAccountManager：更多获取 IcqHttpApi 的方法
+
+MixinAccountManager 提供了机器人名称和机器人QQ号获取 IcqHttpApi 的检索方法。
+
+```java
+MixinBot bot = ...;
+
+bot.addAccount("Geo", "127.0.0.1", 25560); // 此时酷Q登陆的账号的QQ号是 10000
+
+MixinAccountManager am = bot.getAccountManager();
+BotAccount acc1 = am.getAccountByUID(10000L); // 通过QQ号获取
+BotAccount acc2 = am.getAccountByName("Geo"); // 通过机器人名称获取
+```
+
+另类获取方法，使用 BotAccountFinder。这种方法可以在某些需要的地方用上。_讲道理我也不知道能用在哪里..._
+
+```java
+BotAccountFinder finder = new BotAccountFinder().by(10000L).by("Geo"); // 可以用 by 方法传入名称和QQ号
+BotAccount acc = finder.find(bot); // 传入一个机器人实例。
+```
+
+### Timer in Mixin：计划任务
+
+就是普普通通的 TimerTask。下面展示如何获取 Timer。
+
+```java
+MixinBot bot = ...;
+Timer timer = bot.getTimer(); // 获取 Timer 就这么简单
+```
+
+但是咱有特别的 TimerTask。下面展示信息发送任务。
+
+```java
+Timer timer = bot.getTimer();
+
+// 传入的参数分别是：机器人，信息，号码（QQ号/群号/讨论组号），消息类型（人，群，讨论组），账号查找器
+MixinTaskMessage task = new MixinTaskMessage(bot, "Hello", 3070190799L, MessageType.PRIVATE, new BotAccountFinder().by("Geo"));
+
+// 这些信息都可以进行修改
+task.setMessage("Bye~");
+
+timer.schedule(task, 0, 1000*60*60*24); // 然后送到调度器里去就好了
+```
+
+### State of Mixin：机器人状态
+
+```java
+int state = bot.getState();
+```
+
+| 状态码（int） | 意义 |
+| 0 | 初始化阶段，组件尚未加载完成 |
+| 1 | 挂起状态，不能监听HttpApi消息，但是可以发送消息 |
+| 2 | 运行状态，能够处理HttpApi消息 |
 
 #### 如果你还有什么底层的内容需要访问，请创建一个 issue。
 
