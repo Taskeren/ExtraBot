@@ -94,7 +94,7 @@ public class MixinBot extends PicqBotX {
 		}
 		
 		// 开始初始化
-		state = STATE_INITIAL;
+		setState(STATE_INITIAL);
 		
 		// 强制性修改，你莫得选择
 		MixinBotInjector.setEventManager(this, new MixinEventManager(this)); // 修改事件管理器
@@ -106,7 +106,7 @@ public class MixinBot extends PicqBotX {
 		}
 		
 		// 初始化完成
-		state = STATE_SUPSEND;
+		setState(STATE_SUPSEND);
 	}
 	
 	/**
@@ -116,12 +116,19 @@ public class MixinBot extends PicqBotX {
 		return (MixinAccountManager) super.getAccountManager(); // 在初始化里已经强制修改为了 MixinAccountManager
 	}
 	
+	/**
+	 * 改变机器人状态
+	 * @param state
+	 * @return
+	 */
+	public MixinBot setState(int state) {
+		this.state = state;
+		botTweaker.onBotStateChanged(this, state);
+		return this;
+	}
+	
 	/** 
-	 * <table border>
-	 * <tr><td>0</td><td>待机</td>
-	 * <tr><td>1</td><td>运行</td>
-	 * </table>
-	 * 
+	 * @see MixinBot#state
 	 * @return 机器人状态码
 	 */
 	public int getState() {
@@ -188,7 +195,7 @@ public class MixinBot extends PicqBotX {
 		if (botTweaker.onBotStart(this)) {
 			try {
 				super.startBot();
-				state = STATE_RUNNING; // 状态：监听
+				setState(STATE_RUNNING); // 状态：监听
 			} catch(Exception ex) {
 				if(config.getStartBotExceptionHandler() != null) {
 					config.getStartBotExceptionHandler().accept(this, ex);
@@ -209,7 +216,7 @@ public class MixinBot extends PicqBotX {
 		if(botTweaker.onBotStop(this)) {
 			if(getHttpServer() instanceof MixinHttpServer) {
 				((MixinHttpServer) getHttpServer()).stop();
-				state = STATE_SUPSEND; // 状态：待机
+				setState(STATE_SUPSEND); // 状态：待机
 				return true;
 			} else {
 				return false;

@@ -55,4 +55,11 @@ public interface BotTweaker {
 		return true;
 	}
 	
+	/**
+	 * 在执行 {@link MixinBot#setState(int)} 时调用。
+	 */
+	public default void onBotStateChanged(MixinBot bot, int state) {
+		
+	}
+	
 }
