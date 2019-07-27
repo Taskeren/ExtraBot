@@ -69,14 +69,14 @@ public class TestMixin {
 		};
 		
 		@Override
-		public boolean onBotStart(MixinBot bot) {
+		public boolean onBotStarted(MixinBot bot) {
 			bot.getLogger().log("[机器人启动]");
-			return BotTweaker.super.onBotStart(bot);
+			return BotTweaker.super.onBotStarted(bot);
 		}
 		
-		public boolean onBotStop(MixinBot bot) {
+		public boolean onBotStopped(MixinBot bot) {
 			bot.getLogger().log("[机器人关闭]");
-			return BotTweaker.super.onBotStop(bot);
+			return BotTweaker.super.onBotStopped(bot);
 		};
 		
 	};

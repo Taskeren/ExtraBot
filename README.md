@@ -11,7 +11,7 @@ MixinBot 主要对 PicqBotX 的部分管理器进行反射修改，见下表。
 | :-: | :-: | :-: |
 | CommandManager | MixinCommandManager | 必须 |
 | EventManager | MixinEventManager | 必须 |
-| PicqHttpServer | MixinHttpServer | 可选 |
+| PicqHttpServer | MixinHttpServer | 必须（@since 1.1） |
 | AccountManager | MixinAccountManager | 必须 |
 
 ### 实例化机器人和快捷方法
@@ -78,7 +78,8 @@ MixinBot bot = new MixinBot(new MixinBotConfiguration(25560), tweaker);
 
 ### MixinHttpServer：更加客制化的 HttpServer
 
-MixinHttpServer 的内容为可选内容。
+现在 MixinBot 强制使用 MixinHttpServer。
+~~~MixinHttpServer 的内容为可选内容。~~~
 
 MixinHttpServer 提供了关闭服务器的接口，用于特殊用途。
 
@@ -98,14 +99,20 @@ MixinBotConfiguration config = new MixinBotConfiguration(25560).setHelloMessage(
 ```java
 MixinBot bot = new MixinBot(config);
 PicqHttpServer server = bot.getHttpServer();
-if(server instanceof MixinHttpServer) {
-	MixinHttpServer ms = (MixinHttpServer) server;
-	HttpServer = ms.getServer();
+MixinHttpServer ms = (MixinHttpServer) server;
+HttpServer = ms.getServer();
 
-	// 操作示例
-	ms.createContext("/yoyoyoyo", handler);
-}
+ms.createContext("/yoyoyoyo", handler); // 使用示例
 
+```
+
+更多，MixinHttpServer 暴露了 MixinHttpHandler（继承 com.sun.net.httpserver.HttpHandler），用于特殊开发。下面是将 HttpHandler 挂载到第三方 HttpServer 上的示例。
+
+```java
+MixinBot bot = ...;
+HttpServer server = ...; // 从其他地方创建的HttpServer
+
+server.createContext("/api", bot.getHttpServer().getHandler()); // 挂载方法
 ```
 
 ### MixinAccountManager：更多获取 IcqHttpApi 的方法
@@ -154,18 +161,6 @@ task.setMessage("Bye~");
 
 timer.schedule(task, 0, 1000*60*60*24); // 然后送到调度器里去就好了
 ```
-
-### State of Mixin：机器人状态
-
-```java
-int state = bot.getState();
-```
-
-| 状态码（int） | 意义 |
-| :-: | :-: |
-| 0 | 初始化阶段，组件尚未加载完成 |
-| 1 | 挂起状态，不能监听HttpApi消息，但是可以发送消息 |
-| 2 | 运行状态，能够处理HttpApi消息 |
 
 #### 如果你还有什么底层的内容需要访问，请创建一个 issue。
 

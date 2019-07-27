@@ -34,11 +34,16 @@ public class MixinHttpServer extends PicqHttpServer {
 
 	protected final MixinBot bot;
 	protected final int port;
+	
+	@Getter
+	protected final MixinHttpHandler handler;
 
 	public MixinHttpServer(MixinBot bot, int port) {
 		super(port, bot);
 		this.bot = bot;
 		this.port = port;
+		
+		this.handler = new MixinHttpHandler(); // init handler
 	}
 
 	@Override
@@ -51,20 +56,24 @@ public class MixinHttpServer extends PicqHttpServer {
 
 	@Override
 	public void start() {
+		bot.getBotTweaker().onBotStarting(bot);
 		try {
 			server = HttpServer.create(new InetSocketAddress(port), 0);
-			server.createContext("/", new MixinHttpHandler());
+			server.createContext("/", handler);
 			server.start();
 		} catch (IOException e) {
 			throw new HttpServerException(logger, e);
 		}
+		bot.getBotTweaker().onBotStarted(bot);
 	}
 
 	/**
 	 * 关闭 Http 服务器
 	 */
 	public void stop() {
+		bot.getBotTweaker().onBotStopping(bot);
 		server.stop(0);
+		bot.getBotTweaker().onBotStopped(bot);
 	}
 
 	/**

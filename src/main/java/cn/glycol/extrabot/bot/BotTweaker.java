@@ -2,6 +2,7 @@ package cn.glycol.extrabot.bot;
 
 import cc.moecraft.icq.command.interfaces.IcqCommand;
 import cc.moecraft.icq.event.IcqListener;
+import cn.glycol.extrabot.bot.server.MixinHttpServer;
 
 /**
  * MixinBot机器人事件监听器
@@ -26,19 +27,35 @@ public interface BotTweaker {
 	};
 	
 	/**
-	 * 在执行 {@link MixinBot#startBot()} 时被调用，返回 {@code false} 取消启动。
+	 * 在执行 {@link MixinHttpServer#start()} 前被调用。<br>
+	 * 可能因为没有使用内置 HttpServer 启动，监听失效。
 	 */
-	public default boolean onBotStart(MixinBot bot) {
-		return true;
+	public default void onBotStarting(MixinBot bot) {
+		
+	}
+	
+	/**
+	 * 在执行 {@link MixinHttpServer#stop()} 前被调用。<br>
+	 * 可能因为没有使用内置 HttpServer 启动，监听失效。
+	 */
+	public default void onBotStopping(MixinBot bot) {
+		
+	}
+	
+	/**
+	 * 在执行 {@link MixinHttpServer#start()} 后被调用。<br>
+	 * 可能因为没有使用内置 HttpServer 启动，监听失效。
+	 */
+	public default void onBotStarted(MixinBot bot) {
+		
 	};
 	
 	/**
-	 * 在执行 {@link MixinBot#stopBot()} 时被调用，返回 {@code false} 取消关闭。
-	 * @param bot
-	 * @return
+	 * 在执行 {@link MixinHttpServer#stop()} 后被调用。
+	 * 可能因为没有使用内置 HttpServer 启动，监听失效。
 	 */
-	public default boolean onBotStop(MixinBot bot) {
-		return true;
+	public default void onBotStopped(MixinBot bot) {
+		
 	}
 	
 	/**
