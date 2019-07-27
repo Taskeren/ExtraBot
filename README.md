@@ -79,7 +79,7 @@ MixinBot bot = new MixinBot(new MixinBotConfiguration(25560), tweaker);
 ### MixinHttpServer：更加客制化的 HttpServer
 
 现在 MixinBot 强制使用 MixinHttpServer。
-~~~MixinHttpServer 的内容为可选内容。~~~
+~~MixinHttpServer 的内容为可选内容。~~
 
 MixinHttpServer 提供了关闭服务器的接口，用于特殊用途。
 
@@ -103,7 +103,6 @@ MixinHttpServer ms = (MixinHttpServer) server;
 HttpServer = ms.getServer();
 
 ms.createContext("/yoyoyoyo", handler); // 使用示例
-
 ```
 
 更多，MixinHttpServer 暴露了 MixinHttpHandler（继承 com.sun.net.httpserver.HttpHandler），用于特殊开发。下面是将 HttpHandler 挂载到第三方 HttpServer 上的示例。
