@@ -168,7 +168,6 @@ public class MixinBot extends PicqBotX {
 	
 	/**
 	 * 关闭机器人
-	 * @return 是否成功
 	 */
 	public void stopBot() {
 		getHttpServer().stop();
