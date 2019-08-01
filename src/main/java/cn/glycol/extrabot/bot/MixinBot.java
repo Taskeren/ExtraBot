@@ -9,6 +9,7 @@ import cc.moecraft.icq.command.interfaces.IcqCommand;
 import cc.moecraft.icq.event.IcqListener;
 import cn.glycol.extrabot.ExtraBot;
 import cn.glycol.extrabot.bot.manager.MixinAccountManager;
+import cn.glycol.extrabot.bot.manager.MixinCommandListener;
 import cn.glycol.extrabot.bot.manager.MixinCommandManager;
 import cn.glycol.extrabot.bot.manager.MixinEventManager;
 import cn.glycol.extrabot.bot.server.MixinHttpServer;
@@ -119,8 +120,9 @@ public class MixinBot extends PicqBotX {
 	@Override
 	public void enableCommandManager(String... prefixes) {
 		if (botTweaker.onEnableCommandManager(this, prefixes)) {
-			super.enableCommandManager(prefixes);
-			MixinBotInjector.setCommandManager(this, new MixinCommandManager(this, prefixes)); // 修改指令管理器
+			MixinCommandManager manager = new MixinCommandManager(this, prefixes);
+			MixinBotInjector.setCommandManager(this, manager); // 修改指令管理器
+			getEventManager().registerListener(new MixinCommandListener(manager)); // 注册指令监听器
 		} else {
 			//
 		}

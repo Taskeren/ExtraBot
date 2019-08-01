@@ -178,6 +178,23 @@ MixinBotInjector 内置了修改 PicqBotX 管理器的方法，支持的变量�
 | setCommandManager | 设置指令管理器 |
 | setLoggerInstanceManager | 设置Logger实例管理器 |
 
+## 额外添加的辅助类消息组件
+
+额外添加的辅助类消息组件都是基于原版 PicqBotX 的消息组件修改封装而来，所以使用方法也与原版 PicqBotX 的消息组件相同。
+
+### ComponentQRCode：二维码组件
+
+二维码组件用于生成和发送二维码，如果您需要自行操作，可以使用辅助工具包里的 `QrCode` 类生成二维码图片文件后操作。
+
+```java
+// 默认配置的二维码组件
+ComponentQRCode c1 = new ComponentQRCode("hello world");
+// 自定义配置的二维码组件，设定前景颜色为黑色
+ComponentQRCode c2 = new ComponentQRCode("hello world", QrConfig.create().setForeColor(ColorCode.BLACK));
+// 直接导入二维码图片，但并没有任何检查，与 ComponentImageBase64 相同
+ComponentQRCode c3 = new ComponentQRCode(new File("qr.png"));
+```
+
 ## 消息解析：Message Parser
 
 给指令提供更方便的操作。

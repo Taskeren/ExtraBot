@@ -15,8 +15,8 @@ public class QrCode {
 	 * @param ctx 二维码内容
 	 * @return 二维码文件
 	 */
-	public static File generate(String ctx) {
-		return generate(
+	public static File gen(String ctx) {
+		return gen(
 			ctx,
 			QrConfig
 				.create()
@@ -31,7 +31,7 @@ public class QrCode {
 	 * @param config 二维码设置
 	 * @return 二维码文件
 	 */
-	public static File generate(String ctx, QrConfig config) {
+	public static File gen(String ctx, QrConfig config) {
 		return QrCodeUtil.generate(ctx, config, FileUtil.createTempFile(MixinGlobalConfig.QR_PREFIX, MixinGlobalConfig.QR_SUFFIX, MixinGlobalConfig.CACHE_FOLDER, true));
 	}
 	

@@ -10,7 +10,7 @@ public class TestQRCode {
 
 	@Test
 	public void test() {
-		File file = QrCode.generate("https://donate.hcooh.top");
+		File file = QrCode.gen("https://donate.hcooh.top");
 		System.out.println(file);
 	}
 	
