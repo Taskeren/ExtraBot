@@ -182,6 +182,16 @@ MixinBotInjector 内置了修改 PicqBotX 管理器的方法，支持的变量�
 
 额外添加的辅助类消息组件都是基于原版 PicqBotX 的消息组件修改封装而来，所以使用方法也与原版 PicqBotX 的消息组件相同。
 
+__注意：部分组件与原版组件重名，请使用 `cn.glycol.extrabot.component.extra.*` 包下的组件。__
+
+### ComponentImage(cn.glycol.extrabot.component.extra.ComponentImage)：图片组件
+
+本图片组件用于补充原版图片组件的不足之处，原版图片组件的文件只能为`酷Q目录\data\image\`下的文件，本组件进行了补充，可以使用位置任意图片文件。
+
+```java
+ComponentImage c = new ComponentImage(new File("image.png"));
+```
+
 ### ComponentQRCode：二维码组件
 
 二维码组件用于生成和发送二维码，如果您需要自行操作，可以使用辅助工具包里的 `QrCode` 类生成二维码图片文件后操作。
