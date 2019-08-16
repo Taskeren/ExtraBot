@@ -16,8 +16,8 @@ public class TestMixin {
 	public void test() {
 		
 		MixinBot bot;
-		bot = new MixinBot((MixinBotConfiguration) new MixinBotConfiguration(25561).setColorSupportLevel(ColorSupportLevel.DISABLED), tweaker);
-		bot.addAccount("Geo", "127.0.0.1", 25560);
+		bot = new MixinBot((MixinBotConfiguration) new MixinBotConfiguration(25560).setColorSupportLevel(ColorSupportLevel.DISABLED), tweaker);
+		bot.addAccount("Geo", "127.0.0.1", 25561);
 		bot.enableCommandManager("/");
 		
 		bot.doAutoRegister(Reference.class);

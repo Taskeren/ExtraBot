@@ -44,9 +44,7 @@ public class MixinAccountManager extends AccountManager {
 	@Override
 	public void refreshCache() {
 		super.refreshCache();
-		
-		System.out.println("ref");
-		
+
 		nameIndex = new HashMap<>();
 		
 		for(BotAccount account : getAccounts()) {

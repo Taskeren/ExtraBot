@@ -47,24 +47,26 @@ public class ExtraBot {
 			
 			if(ar.value() == Type.COMMAND) {
 				// 检查变量是不是指令的实例
-				if(f.getType() != IcqCommand.class) {
+				Object instance = f.get(null);
+				if(IcqCommand.class.isAssignableFrom(instance.getClass())) {
+					IcqCommand command = (IcqCommand) f.get(null);
+					bot.getCommandManager().registerCommand(command);
+					logger.logf("Added command %s", f.getName());
+				} else {
 					throw new AutoRegisterException("%s is not a command instance", f.getName());
 				}
-				
-				IcqCommand command = (IcqCommand) f.get(null);
-				bot.getCommandManager().registerCommand(command);
-				logger.logf("Added command %s", f.getName());
 			}
 			
 			if(ar.value() == Type.LISTENER) {
 				// 检查变量是不是监听器的实例
-				if(f.getType() != IcqListener.class) {
-					throw new AutoRegisterException("%s is not a event listener instance", f.getName());
+				Object instance = f.get(null);
+				if(IcqListener.class.isAssignableFrom(instance.getClass())) {
+					IcqListener listener = (IcqListener) instance;
+					bot.getEventManager().registerListener(listener);
+					logger.logf("Added listener %s", f.getName());
+				} else {
+					throw new AutoRegisterException("%s is not a event listener instance", f.getName());	
 				}
-				
-				IcqListener listener = (IcqListener) f.get(null);
-				bot.getEventManager().registerListener(listener);
-				logger.logf("Added listener %s", f.getName());
 			}
 		}
 		timer.stop();
