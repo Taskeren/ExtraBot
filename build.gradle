@@ -27,7 +27,7 @@ dependencies {
 
     api 'org.apache.commons:commons-math3:3.6.1'
     api 'com.github.hydevelop:PicqBotX:4.10.1.928'
-    api 'com.github.nitu2003:TUtils:588913ce05'
+    api 'com.github.nitu2003:TUtils:d94f123f54'
     api 'com.google.zxing:core:3.3.3'
     implementation 'com.google.guava:guava:27.0.1-jre'
     testImplementation 'junit:junit:4.12'
