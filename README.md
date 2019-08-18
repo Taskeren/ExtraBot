@@ -1,6 +1,34 @@
 # ExtraBot
 一个给 PicqBotX 开发的库。
 
+## Command：自适应指令模板
+
+`Command` 位于 `cn.glycol.extrabot.registration` 包内，继承他来写指令可以自适应的获取对应的 `IcqCommnad` 实例。
+
+```java
+public class CommandA extends Command {
+
+	public CommandA() {
+		// CommandType设置获取到的IcqCommand为什么类型
+		super(CommandType.EVERYWHERE, "a");
+	}
+
+	// 大部分都与普通的Icq指令相同，但是其中用户被封装为了 MixinUser，并且添加了 Group。
+	// MixinUser 有 asStranger() 和 asGrouper() 两个方法解析到 User 和 GroupUser，但是请根据情况使用。
+	// Everywhere 和 Private 时 MixinUser 应使用 asStranger()
+	// Group 和 Discuss 时 MixinUser 应使用 asGrouper()
+	// Group 提供群实例，在 Everywhere 和 Private 时为 null，请根据情况使用。
+	// 返回值与普通的Icq相同，如果为 null 则不返回。
+	public String run(EventMessage evt, MixinUser sender, Group g, String command, ArrayList<String> args) {
+		return null;
+	}
+
+	// 注册指令时使用 toIcqCommand() 转换为Icq指令即可。
+	public static final IcqCommand INSTANCE = new CommandA().toIcqCommand();
+
+}
+```
+
 ## MixinBot：高度自定义化机器人
 
 MixinBot 基于 PicqBotX，并对其进行了修改和升级，使之更加客制化，用户友好化。
