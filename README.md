@@ -1,4 +1,4 @@
-# ExtraBot
+# ExtraBot [![Build Status](https://www.travis-ci.org/nitu2003/ExtraBot.svg?branch=master)](https://www.travis-ci.org/nitu2003/ExtraBot)
 一个给 PicqBotX 开发的库。
 
 ## Command：自适应指令模板
