@@ -19,10 +19,10 @@ import com.sun.net.httpserver.HttpServer;
 
 import cc.moecraft.icq.event.events.local.EventLocalHttpFail;
 import cc.moecraft.icq.event.events.local.EventLocalHttpFail.Reason;
-import cc.moecraft.icq.exceptions.HttpServerException;
 import cc.moecraft.icq.receiver.PicqHttpServer;
 import cc.moecraft.icq.utils.SHA1Utils;
 import cn.glycol.extrabot.bot.MixinBot;
+import cn.hutool.core.io.IORuntimeException;
 import lombok.Getter;
 
 /**
@@ -36,6 +36,9 @@ public class MixinHttpServer extends PicqHttpServer {
 	protected final int port;
 	
 	@Getter
+	protected HttpServer server;
+	
+	@Getter
 	protected final MixinHttpHandler handler;
 
 	public MixinHttpServer(MixinBot bot, int port) {
@@ -43,27 +46,28 @@ public class MixinHttpServer extends PicqHttpServer {
 		this.bot = bot;
 		this.port = port;
 		
+		initServer(); // init server
 		this.handler = new MixinHttpHandler(); // init handler
 	}
 
+	public void initServer() {
+		try {
+			server = HttpServer.create(new InetSocketAddress(port), 0);
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
+	}
+	
 	@Override
 	public MixinBot getBot() {
 		return bot;
 	}
 
-	@Getter
-	protected HttpServer server;
-
 	@Override
 	public void start() {
 		bot.getBotTweaker().onBotStarting(bot);
-		try {
-			server = HttpServer.create(new InetSocketAddress(port), 0);
-			server.createContext("/", handler);
-			server.start();
-		} catch (IOException e) {
-			throw new HttpServerException(logger, e);
-		}
+		server.createContext("/", handler);
+		server.start();
 		bot.getBotTweaker().onBotStarted(bot);
 	}
 
