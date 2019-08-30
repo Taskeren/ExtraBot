@@ -51,7 +51,7 @@ public class ExtraBot {
 				if(IcqCommand.class.isAssignableFrom(instance.getClass())) {
 					IcqCommand command = (IcqCommand) f.get(null);
 					bot.getCommandManager().registerCommand(command);
-					logger.logf("Added command %s", f.getName());
+					logger.debugf("Added command %s", f.getName());
 				} else {
 					throw new AutoRegisterException("%s is not a command instance", f.getName());
 				}
@@ -63,14 +63,14 @@ public class ExtraBot {
 				if(IcqListener.class.isAssignableFrom(instance.getClass())) {
 					IcqListener listener = (IcqListener) instance;
 					bot.getEventManager().registerListener(listener);
-					logger.logf("Added listener %s", f.getName());
+					logger.debugf("Added listener %s", f.getName());
 				} else {
 					throw new AutoRegisterException("%s is not a event listener instance", f.getName());	
 				}
 			}
 		}
 		timer.stop();
-		logger.logf("Done! Time: %sms.", timer.duration());
+		logger.debugf("Done! Time: %sms.", timer.duration());
 	}
 	
 }
