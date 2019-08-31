@@ -20,6 +20,8 @@ public class TestMixin {
 		bot.addAccount("Geo", "127.0.0.1", 25561);
 		bot.enableCommandManager("/");
 		
+		bot.getCommandManager().setPrefixNeeded(false);
+		
 		bot.doAutoRegister(Reference.class);
 		
 		bot.startBot();

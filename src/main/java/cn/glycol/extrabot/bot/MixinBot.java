@@ -99,6 +99,13 @@ public class MixinBot extends PicqBotX {
 		return (MixinHttpServer) super.getHttpServer();
 	}
 	
+	/**
+	 * 获取指令管理器
+	 */
+	public MixinCommandManager getCommandManager() {
+		return (MixinCommandManager) super.getCommandManager();
+	}
+	
 	@Override
 	public void addAccount(String name, String postUrl, int postPort) {
 		if (botTweaker.onAddAccount(this, name, postUrl, postPort)) {
