@@ -24,6 +24,8 @@ public class TestMixin {
 		
 		bot.doAutoRegister(Reference.class);
 		
+		bot.getCommandManager().addPrefixUnneeded("qr");
+		
 		bot.startBot();
 		
 		while(true) {}

@@ -4,6 +4,9 @@ import static cc.moecraft.icq.utils.StringUtils.removeStartingSpace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import cc.moecraft.icq.command.CommandArgs;
 import cc.moecraft.icq.command.CommandArgsParser;
@@ -33,7 +36,7 @@ public class MixinArgsParser {
 
 		// 确认是否需要前缀
 		boolean prefixNeeded = manager.isPrefixNeeded();
-		
+
 		// 获取前缀
 		String prefix = prefixNeeded ? getPrefix(manager.getPrefixes(), fullCommand) : "";
 
@@ -65,6 +68,54 @@ public class MixinArgsParser {
 
 		// 获取执行器, 返回
 		return new CommandArgs(prefix, command, manager.getCommands().get(command), args);
+	}
+
+	/**
+	 * 修改后的读取器
+	 * 
+	 * @param manager     指令管理器
+	 * @param fullCommand 指令全文
+	 * @param isGM        是否为群消息
+	 * @return 指令参数
+	 * @author Taskeren
+	 */
+	public static CommandArgs parse0(MixinCommandManager manager, String fullCommand, boolean isGM) throws NotACommandException, CommandNotFoundException {
+
+		// 移除前部空格
+		fullCommand = removeStartingSpace(fullCommand);
+
+		// 切割指令
+		fullCommand += " ;";
+		List<String> args = new ArrayList<>(Arrays.asList(fullCommand.split(manager.getBot().getConfig().getCommandArgsSplitRegex())));
+		args.remove(args.size() - 1);
+
+		// 获取指令
+		String command = args.get(0).toLowerCase();
+
+		// 是否需要前缀
+		boolean prefixNeeded = manager.isPrefixUnneeded(command) ? false : manager.isPrefixNeeded();
+
+		// 获取前缀
+		String prefix = prefixNeeded ? getPrefix(manager.getPrefixes(), command) : "";
+
+		// 判断有没有前缀, 私聊不需要前缀
+		if(prefix.equals("") && isGM && prefixNeeded) {
+			throw new NotACommandException();
+		}
+
+		// 去掉前缀
+		command = command.substring(prefix.length());
+
+		// 确认指令存在
+		if(!manager.getCommands().containsKey(command)) {
+			throw new CommandNotFoundException();
+		}
+
+		// 删除指令名称
+		args.remove(0);
+
+		// 返回
+		return new CommandArgs(prefix, command, manager.getCommands().get(command), Lists.newArrayList(args));
 	}
 
 	/**

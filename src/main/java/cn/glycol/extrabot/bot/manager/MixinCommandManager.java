@@ -1,8 +1,11 @@
 package cn.glycol.extrabot.bot.manager;
 
-import static cn.glycol.extrabot.bot.manager.MixinArgsParser.parse;
+import static cn.glycol.extrabot.bot.manager.MixinArgsParser.*;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import cc.moecraft.icq.PicqBotX;
 import cc.moecraft.icq.command.CommandArgs;
@@ -30,6 +33,10 @@ public class MixinCommandManager extends CommandManager {
 	/** 是否取消指令前缀 */
 	@Getter
 	protected boolean prefixNeeded = true;
+	
+	/** 无需指令前缀的指令名称 */
+	@Getter
+	protected List<String> prefixUnneeded = Lists.newArrayList();
 
 	public MixinCommandManager(MixinBot bot, String... prefixes) {
 		super(bot, prefixes);
@@ -41,6 +48,23 @@ public class MixinCommandManager extends CommandManager {
 	 */
 	public void setPrefixNeeded(boolean needed) {
 		prefixNeeded = needed;
+	}
+	
+	/**
+	 * 添加一个无需指令前缀的指令
+	 * @param command
+	 */
+	public void addPrefixUnneeded(String command) {
+		prefixUnneeded.add(command);
+	}
+	
+	/**
+	 * 获取特定指令是否需要指令前缀
+	 * @param command 指令
+	 * @return 是否需要前缀
+	 */
+	public boolean isPrefixUnneeded(String command) {
+		return prefixUnneeded.contains(command);
 	}
 
 	@Override
@@ -87,8 +111,11 @@ public class MixinCommandManager extends CommandManager {
 		CommandArgs args;
 
 		try {
-			args = parse(this, event.getMessage(), isDM || isGM);
+			args = parse0(this, event.getMessage(), isDM || isGM);
 		} catch(NotACommandException | CommandNotFoundException e) {
+			return;
+		} catch(Exception e) {
+			e.printStackTrace();
 			return;
 		}
 
