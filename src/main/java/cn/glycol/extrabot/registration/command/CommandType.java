@@ -1,4 +1,4 @@
-package cn.glycol.extrabot.registration;
+package cn.glycol.extrabot.registration.command;
 
 public enum CommandType {
 

@@ -7,12 +7,12 @@ import cc.moecraft.icq.PicqBotX;
 import cc.moecraft.icq.PicqConfig;
 import cc.moecraft.icq.command.interfaces.IcqCommand;
 import cc.moecraft.icq.event.IcqListener;
-import cn.glycol.extrabot.ExtraBot;
 import cn.glycol.extrabot.bot.manager.MixinAccountManager;
 import cn.glycol.extrabot.bot.manager.MixinCommandListener;
 import cn.glycol.extrabot.bot.manager.MixinCommandManager;
 import cn.glycol.extrabot.bot.manager.MixinEventManager;
 import cn.glycol.extrabot.bot.server.MixinHttpServer;
+import cn.glycol.extrabot.registration.autoregister.AutoRegister;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -153,13 +153,17 @@ public class MixinBot extends PicqBotX {
 		getEventManager().registerListener(listener);
 	}
 
+	AutoRegister ar;
+	
 	/**
 	 * 调用 {@link ExtraBot#register(Class, PicqBotX)} 自动注册指令和事件监听器。
 	 * 
 	 * @param cls 存放指令和事件监听器的类。
 	 */
 	public void doAutoRegister(Class<?> cls) {
-		ExtraBot.register(cls, this);
+		if(ar == null)
+			ar = new AutoRegister(this);
+		ar.execute(cls);
 	}
 
 	@Override

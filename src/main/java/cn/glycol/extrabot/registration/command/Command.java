@@ -1,9 +1,9 @@
-package cn.glycol.extrabot.registration;
+package cn.glycol.extrabot.registration.command;
 
-import static cn.glycol.extrabot.registration.CommandType.DISCUSS;
-import static cn.glycol.extrabot.registration.CommandType.EVERYWHERE;
-import static cn.glycol.extrabot.registration.CommandType.GROUP;
-import static cn.glycol.extrabot.registration.CommandType.PRIVATE;
+import static cn.glycol.extrabot.registration.command.CommandType.DISCUSS;
+import static cn.glycol.extrabot.registration.command.CommandType.EVERYWHERE;
+import static cn.glycol.extrabot.registration.command.CommandType.GROUP;
+import static cn.glycol.extrabot.registration.command.CommandType.PRIVATE;
 
 import java.util.ArrayList;
 
@@ -22,6 +22,7 @@ import cc.moecraft.icq.event.events.message.EventPrivateMessage;
 import cc.moecraft.icq.user.Group;
 import cc.moecraft.icq.user.GroupUser;
 import cc.moecraft.icq.user.User;
+import cn.glycol.extrabot.registration.autoregister.MixinUser;
 
 public abstract class Command {
 

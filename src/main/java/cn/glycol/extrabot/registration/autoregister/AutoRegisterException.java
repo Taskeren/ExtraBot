@@ -1,4 +1,4 @@
-package cn.glycol.extrabot.registration;
+package cn.glycol.extrabot.registration.autoregister;
 
 public class AutoRegisterException extends RuntimeException {
 	

@@ -1,4 +1,4 @@
-package cn.glycol.extrabot.registration;
+package cn.glycol.extrabot.registration.autoregister;
 
 import cc.moecraft.icq.PicqBotX;
 import cc.moecraft.icq.command.interfaces.DiscussCommand;

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import cc.moecraft.icq.event.events.message.EventMessage;
 import cc.moecraft.icq.user.Group;
 import cn.glycol.extrabot.bot.MixinBot;
-import cn.glycol.extrabot.registration.Command;
-import cn.glycol.extrabot.registration.CommandType;
-import cn.glycol.extrabot.registration.MixinUser;
+import cn.glycol.extrabot.registration.autoregister.MixinUser;
+import cn.glycol.extrabot.registration.command.Command;
+import cn.glycol.extrabot.registration.command.CommandType;
 
 public class CommandNative extends Command {
 
