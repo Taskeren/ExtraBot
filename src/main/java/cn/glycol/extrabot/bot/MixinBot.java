@@ -107,21 +107,20 @@ public class MixinBot extends PicqBotX {
 	}
 	
 	@Override
-	public void addAccount(String name, String postUrl, int postPort) {
+	public boolean addAccount(String name, String postUrl, int postPort) {
 		if (botTweaker.onAddAccount(this, name, postUrl, postPort)) {
-			try {
-				super.addAccount(name, postUrl, postPort);
-			} catch(Exception ex) {
+			return super.addAccount(name, postUrl, postPort, ex->{
 				// 如果有异常处理器则交给异常处理器处理，否则继续向上抛出异常
 				if(config.getAddAccountExceptionHandler() != null) {
 					config.getAddAccountExceptionHandler().accept(this, ex);
 				} else {
 					throw ex;
 				}
-			}
+			});
 		} else {
 			//
 		}
+		return false;
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class MixinBot extends PicqBotX {
 	/**
 	 * 注册指令
 	 * 
-	 * @param commands 指令
+	 * @param command 指令
 	 */
 	public void addCommand(IcqCommand command) {
 		getCommandManager().registerCommand(command);
@@ -156,7 +155,7 @@ public class MixinBot extends PicqBotX {
 	AutoRegister ar;
 	
 	/**
-	 * 调用 {@link ExtraBot#register(Class, PicqBotX)} 自动注册指令和事件监听器。
+	 * 调用 {@link AutoRegister} 自动注册指令和事件监听器。
 	 * 
 	 * @param cls 存放指令和事件监听器的类。
 	 */
